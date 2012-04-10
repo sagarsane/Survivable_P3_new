@@ -1,14 +1,13 @@
 
-
 #include <ilcplex/ilocplex.h>
   ILOSTLBEGIN                                            //a macro that is needed for portability (necessary) 
 
 int  main ()
-  {
+  { 
+     cout << "Before Everything!!!" << "\n";
+     IloEnv env;
      IloInt   i,j,varCount1,varCount2,varCount3,conCount;                                                    //same as “int i;”
      IloInt k,w,K,W,E,l,P,N;
-     IloEnv   env;                                              //open cplex environment - always the first operation
-				//note the last operation is to close the environment
      try {
         IloModel model(env);		//set up a model object
 
@@ -17,10 +16,11 @@ int  main ()
 	//var1: c_ijk_w
 	//var2: X_ijk_l
         IloRangeArray con(env);		//declare an array of constraint objects
-        IloObjective obj = IloMinimize(env);	//model the objective function as max 
+        IloNumArray2 t(env); //Traffic Demand
+	cout << "HERE????" << "\n";
+        //IloObjective obj;
 
-	IloNumArray2 t(env); //Traffic Demand
-	
+	cout << "Here";	
 
 	for(i=0;i<9;i++)
 		for(j=0;j<9;j++){
@@ -31,6 +31,7 @@ int  main ()
 		}
 	
 	//Minimize W_max
+        IloObjective obj;
 	obj.setLinearCoef(W_max, 1.0);
 
 	
@@ -45,7 +46,7 @@ int  main ()
 	
 
 	//Setting var2[] for Wavelength Constraints_1	
-	E = 18;
+	E = 10;
 	for(i=0;i<9;i++)
             	for(j=0;j<9;j++)
         	       for(k=0;k<K;k++)
@@ -80,11 +81,11 @@ int  main ()
 				for(j=0;j<9;j++)
 					for(k=0;k<K;k++){
 						//refer mixblend.cpp
-						IloNumVarArray e(env, K);
-							e[k] = IloNumVar(env, var1[varCount1] * var2[varCount2], var1[varCount1] * var2[varCount2]);
+						//IloNumVarArray e(env, K);
+						//	e[k] = IloNumVar(env, var1[varCount1] * var2[varCount2], var1[varCount1] * var2[varCount2]);
 						varCount1++;
 						varCount2++;
-						con[conCount].setLinearCoef(e[k] <= 1);
+						con[conCount].setLinearCoef(var1[varCount1], 1.0);
 						//IloInt temp = var1[varCount1++] * var2[varCount2++];
 					}
 			conCount++;
@@ -111,9 +112,10 @@ int  main ()
 	}
 
 	
-	model.add(obj);			//add objective function into model
+	//model.add(obj);			//add objective function into model
+        model.add(IloMinimize(env,obj));
 	model.add(con);			//add constraints into model
-    
+   	cout << "here\n"; 
         IloCplex cplex(model);			//create a cplex object and extract the 					//model to this cplex object
         // Optimize the problem and obtain solution.
         if ( !cplex.solve() ) {
