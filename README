@@ -1,3 +1,1 @@
-Compiling after removing that line of multiplication after removing one of the vars (for now). But, now getting a wierd seg fault while initializing IloObjective... please check!!! 
-
-Kahi hotay! :-/
+Baryapaiki chaltey aata.. Constraint adding madhye con.setLineraCoef ya statement la exception yetiye.. kahi kalale nahi.. ani khup bore zale.. so me band kele...
