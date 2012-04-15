@@ -10,7 +10,6 @@ int  main ()
      IloInt k,w,K,W,E,l,P,N;
      try {
 	N = 9;
-<<<<<<< HEAD
 	K=W=50;
         IloModel model(env);		//set up a model object
 
@@ -21,18 +20,6 @@ int  main ()
 	//var1: c_ijk_w
 	//var2: X_ijk_l
 	IloRangeArray con(env);// = IloRangeArray(env,N*N + 3*w);		//declare an array of constraint objects
-=======
-	W=K=10;
-        IloModel model(env);		//set up a model object
-
-	IloNumVarArray var1 = IloNumVarArray(env,K*W*N*N);
-//	IloNumVarArray var2(env);
-	IloNumVarArray var3 = IloNumVarArray(env,W);		//declare an array of variable objects, for unknowns 
-	IloNumVar W_max(env, 0, 10, ILOINT);
-	//var1: c_ijk_w
-	//var2: X_ijk_l
-	IloRangeArray con = IloRangeArray(env,N*N + 3*w);		//declare an array of constraint objects
->>>>>>> 2ff7985580f5eb2a7c88f2c8f8dd7325ce0399c5
         IloNumArray2 t = IloNumArray2(env,9); //Traffic Demand
         IloNumArray2 e = IloNumArray2(env,9); //edge matrix
 	cout << "HERE????" << "\n";
@@ -90,7 +77,6 @@ int  main ()
 	for(w = 0;w < W;w++)
 		var3.add(IloNumVar(env, 0, 1, ILOINT)); //Variables for u_w
 	cout<<"variables ready\n";
-<<<<<<< HEAD
 	//IloRangeArray con1 = IloRangeArray(env, 1);
         //con1.add(IloRange(env, 0, 3));
        //con1[0].setLinearCoef(IloNumVar(env,0,1,ILOINT),1.0);
@@ -106,17 +92,6 @@ int  main ()
 					//cout << "Before Adding Constraint\n";
 					//con[1].setLinearCoef(IloNumVar(env, 0, 1, ILOINT), 1.0);
 					//cout<<"coef set "<<varCount1;
-=======
-
-	conCount = 0;
-	for(i=0;i<9;i++)
-		for(j=0;j<9;j++){
-			con.add(IloRange(env, t[i][j], t[i][j]));
-			varCount1 = 0;
-			for(k=0;k<K;k++)
-				for(w=0;w<W;w++){
-					con[conCount].setLinearCoef(var1[varCount1],1.0);
->>>>>>> 2ff7985580f5eb2a7c88f2c8f8dd7325ce0399c5
 				}
 			conCount++;
 		}//Adding Demands Constraints to con
@@ -132,11 +107,7 @@ int  main ()
 					//refer mixblend.cpp
 					//IloNumVarArray e(env, K);
 					//	e[k] = IloNumVar(env, var1[varCount1] * var2[varCount2], var1[varCount1] * var2[varCount2]);
-<<<<<<< HEAD
 					con[conCount].setLinearCoef(var1[varCount1++],e[i][j]);
-=======
-					con[conCount].setLinearCoef(var1[varCount1],e[i][j]);
->>>>>>> 2ff7985580f5eb2a7c88f2c8f8dd7325ce0399c5
 //					varCount1++;
 					//IloInt temp = var1[varCount1++] * var2[varCount2++];
 				}
@@ -152,11 +123,7 @@ int  main ()
                 for(i=0;i<9;i++)
                        for(j=0;j<9;j++)
                                for(k=0;k<K;k++){
-<<<<<<< HEAD
 					con[conCount].setLinearCoef(var1[varCount1++],1.0);
-=======
-					con[conCount].setLinearCoef(var1[varCount1],1.0);
->>>>>>> 2ff7985580f5eb2a7c88f2c8f8dd7325ce0399c5
                                }
                 conCount++;
 
