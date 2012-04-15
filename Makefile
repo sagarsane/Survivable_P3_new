@@ -235,11 +235,17 @@ clean :
 #
 # The examples
 #
-example: example.o
+eexample: example.o
 	$(CCC) $(CCFLAGS) example.o -o example $(CCLNFLAGS)
 
 example.o: example.cpp
 	$(CCC) -c $(CCFLAGS) example.cpp -o example.o
+
+linkfirst_1: linkfirst_1.o
+	$(CCC) $(CCFLAGS) linkfirst_1.o -o linkfirst_1 $(CCLNFLAGS)
+
+linkfirst_1.o: linkfirst_1.cpp
+	$(CCC) -c $(CCFLAGS) linkfirst_1.cpp -o linkfirst_1.o
 
 
 
