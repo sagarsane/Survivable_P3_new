@@ -1,16 +1,31 @@
-
+#include <fstream>
+#include <sstream>
+#include <string>
 #include <ilcplex/ilocplex.h>
   ILOSTLBEGIN                                            //a macro that is needed for portability (necessary) 
+typedef IloArray<IloNumArray> Xij;
+typedef IloArray<Xij> Xijk;
 
 int  main ()
-  { 
+{ 
+     ifstream infile;
+     FILE *file;
+     infile.open("Proj3_op.txt");
+     if(!infile){
+	cerr << "Unable to open the file\n";
+	exit(1);
+     }
+     
      cout << "Before Everything!!!" << "\n";
      IloEnv env;
      IloInt   i,j,varCount1,varCount2,varCount3,conCount;                                                    //same as “int i;”
      IloInt k,w,K,W,E,l,P,N;
+     IloInt tab, newline, val; //from file
+     char line[2048];
      try {
 	N = 9;
-	K=W=50;
+	K = 2;
+	W = 15;
         IloModel model(env);		//set up a model object
 
 	IloNumVarArray var1(env);// = IloNumVarArray(env,K*W*N*N);
@@ -22,10 +37,69 @@ int  main ()
 	IloRangeArray con(env);// = IloRangeArray(env,N*N + 3*w);		//declare an array of constraint objects
         IloNumArray2 t = IloNumArray2(env,9); //Traffic Demand
         IloNumArray2 e = IloNumArray2(env,9); //edge matrix
-	cout << "HERE????" << "\n";
         //IloObjective obj;
 
-	cout << "Here\n";	
+	//Define the Xijk matrix
+	Xijk xijk_matrix(env, N);
+	for(i=0;i<N;i++){
+		xijk_matrix[i] = Xij(env, N);
+		for(j=0;j<N;j++){
+			xijk_matrix[i][j] = IloNumArray(env, K);
+		}
+	}
+
+	//reset everything to zero here
+	for(i=0;i<N;i++)
+		for(j=0;j<N;j++)
+			for(k=0;k<K;k++)
+				xijk_matrix[i][j][k] = 0;	
+	string linetmp;	
+	IloInt xi,xj,xk;
+	xi = xj = xk = 0;
+	int path_no = 0;
+	while(infile.getline(line, 2048)){
+		linetmp = line;
+		//cout << "Current line: " << linetmp << endl; 
+		if(linetmp.find("\n") == linetmp.length()-1){
+			//cout << "Line: " << linetmp << endl;
+			path_no = 0;
+			continue;
+		}
+		istringstream iss(linetmp);
+		string sub_a[3];//max
+		int s_cnt = 0;
+		do{
+			string sub;
+			getline(iss, sub, '\t');
+			//cout << "*" << sub;
+			if(!sub.empty()){
+				sub_a[s_cnt++] = sub;
+			}
+		}while(!iss.eof());
+		//process a line
+		cout << "Cnt:"  << s_cnt << endl;
+		int ii;
+		for(ii=0;ii<s_cnt;ii++){
+			  	if(ii+1 == s_cnt)
+                                        continue;
+
+				cout << "Path: " << path_no << "\t\t";
+				IloInt xi,xj;
+                                int ti,tj;
+                                istringstream(sub_a[ii]) >> ti;
+                                istringstream(sub_a[ii+1]) >> tj;
+				cout << ti << " " << tj << "\t";
+                                xi = (IloInt)ti;
+                                xj = (IloInt)tj;
+                                xijk_matrix[xi][xj][path_no] = 1;
+			
+		}
+		cout << "\n";
+		if(path_no == 0)
+			path_no = 1;
+		else	
+			path_no = 0;
+	}
 	
 	for(i=0;i<9;i++)	
 		e[i] = IloNumArray(env,9);
