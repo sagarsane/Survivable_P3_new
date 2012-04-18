@@ -35,8 +35,8 @@ int  main ()
 	//var1: c_ijk_w
 	//var2: X_ijk_l
 	IloRangeArray con(env);// = IloRangeArray(env,N*N + 3*w);		//declare an array of constraint objects
-        IloNumArray2 t = IloNumArray2(env,9); //Traffic Demand
-        IloNumArray2 e = IloNumArray2(env,9); //edge matrix
+        IloNumArray2 t = IloNumArray2(env,N); //Traffic Demand
+        IloNumArray2 e = IloNumArray2(env,N); //edge matrix
         //IloObjective obj;
 
 	//Define the Xijk matrix
@@ -89,8 +89,8 @@ int  main ()
                                 istringstream(sub_a[ii]) >> ti;
                                 istringstream(sub_a[ii+1]) >> tj;
 				cout << ti << " " << tj << "\t";
-                                xi = (IloInt)ti;
-                                xj = (IloInt)tj;
+                                xi = (IloInt)ti-1;
+                                xj = (IloInt)tj-1;
                                 xijk_matrix[xi][xj][path_no] = 1;
 			
 		}
@@ -100,9 +100,11 @@ int  main ()
 		else	
 			path_no = 0;
 	}
+
+	cout<<"bahre\n";
 	
-	for(i=0;i<9;i++)	
-		e[i] = IloNumArray(env,9);
+	/*for(i=0;i<N;i++)	
+		e[i] = IloNumArray(env,N);
 
 	e[0][1] = e[0][2] = e[0][5] = e[0][6] = IloNum(1);
 	e[1][0] = e[1][2] = e[1][4] = e[1][7] = IloNum(1);
@@ -112,11 +114,11 @@ int  main ()
 	e[5][0] = e[5][3] = e[5][4] = e[5][6] = IloNum(1);
 	e[6][0] = e[6][5] = e[6][7] = e[6][8] = IloNum(1);
 	e[7][1] = e[7][6] = e[7][4] = e[7][8] = IloNum(1);
-	e[8][2] = e[8][4] = e[8][6] = e[8][7] = IloNum(1);
+	e[8][2] = e[8][4] = e[8][6] = e[8][7] = IloNum(1);*/
 	
-	for(i=0;i<9;i++){
-		t[i] = IloNumArray(env,9);
-		for(j=0;j<9;j++){
+	for(i=0;i<N;i++){
+		t[i] = IloNumArray(env,N);
+		for(j=0;j<N;j++){
 			if(i == j)
 				t[i][j] = IloNum(0);
 			else if(i != j)
@@ -131,8 +133,8 @@ int  main ()
 
 	cout << "here khali\n"; 
 	//Setting var1[] for Demands Constraints
-	for(i=0;i<9;i++)
-		for(j=0;j<9;j++)
+	for(i=0;i<N;i++)
+		for(j=0;j<N;j++)
 			for(k=0;k<K;k++)
 				for(w=0;w<W;w++)
 					var1.add(IloNumVar(env, 0, 1, ILOINT));
@@ -149,20 +151,20 @@ int  main ()
                              var2.add(IloNumVar(env, 0, 1, ILOINT));*/
 
 	for(w = 0;w < W;w++)
-		var3.add(IloNumVar(env, 0, 1, ILOINT)); //Variables for u_w
+		var3.add(IloNumVar(env, 0, W, ILOINT)); //Variables for u_w
 	cout<<"variables ready\n";
 	//IloRangeArray con1 = IloRangeArray(env, 1);
         //con1.add(IloRange(env, 0, 3));
        //con1[0].setLinearCoef(IloNumVar(env,0,1,ILOINT),1.0);
         //cout << "Dumy Set\n";
 	conCount = 0;
-	for(i=0;i<9;i++)
-		for(j=0;j<9;j++){
+	for(i=0;i<N;i++)
+		for(j=0;j<N;j++){
 			con.add(IloRange(env, 0, t[i][j]));
-			varCount1 = 0;
+			//varCount1 = 0;
 			for(k=0;k<K;k++)
 				for(w=0;w<W;w++){
-					con[conCount].setLinearCoef(var1[varCount1++],1.0);
+					con[conCount].setLinearCoef(var1[i*N*W*K+j*W*K+k*W+w],1.0);
 					//cout << "Before Adding Constraint\n";
 					//con[1].setLinearCoef(IloNumVar(env, 0, 1, ILOINT), 1.0);
 					//cout<<"coef set "<<varCount1;
@@ -174,14 +176,14 @@ int  main ()
 	IloInt z= 0;
 	for(w=0;w<W;w++){
 		con.add(IloRange(env, -IloInfinity, 1));
-		varCount1 = 0;
-		for(i=0;i<9;i++)
-			for(j=0;j<9;j++)
+		//varCount1 = 0;
+		for(i=0;i<N;i++)
+			for(j=0;j<N;j++)
 				for(k=0;k<K;k++){
 					//refer mixblend.cpp
 					//IloNumVarArray e(env, K);
 					//	e[k] = IloNumVar(env, var1[varCount1] * var2[varCount2], var1[varCount1] * var2[varCount2]);
-					con[conCount].setLinearCoef(var1[varCount1++],e[i][j]);
+					con[conCount].setLinearCoef(var1[i*N*W*K+j*W*K+k*W+w],xijk_matrix[i][j][k]);
 //					varCount1++;
 					//IloInt temp = var1[varCount1++] * var2[varCount2++];
 				}
@@ -192,13 +194,14 @@ int  main ()
 	//Adding Wavelength Constraints_1 to con
 	P = N * (N-1) * K;	
 	for(w=0;w<W;w++){
-		con.add(IloRange(env, -IloInfinity, var3[varCount3++] * P));
+		con.add(IloRange(env, -IloInfinity, 0));
 		varCount1 = 0;
                 for(i=0;i<9;i++)
                        for(j=0;j<9;j++)
                                for(k=0;k<K;k++){
-					con[conCount].setLinearCoef(var1[varCount1++],1.0);
+					con[conCount].setLinearCoef(var1[i*N*W*K+j*W*K+k*W+w],1.0);
                                }
+		con[conCount].setLinearCoef(var3[w],-P);
                 conCount++;
 
 	}
@@ -208,7 +211,7 @@ int  main ()
 	con.add(IloRange(env, 0, IloInfinity));
 	con[conCount].setLinearCoef(W_max, 1.0);
 	for(w = 0;w < W ;w++){
- 		con[conCount].setLinearCoef(var3[varCount3++], -1.0 * w);
+ 		con[conCount].setLinearCoef(var3[w], -1.0 * w);
 	}
 	cout<<"after constraints\n";
 
