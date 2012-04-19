@@ -3,13 +3,33 @@
 #include <string>
 #include <ilcplex/ilocplex.h>
   ILOSTLBEGIN                                            //a macro that is needed for portability (necessary) 
-typedef IloArray<IloNumArray> Xij;
-typedef IloArray<Xij> Xijk;
 
-int  main ()
+typedef IloArray<IloNumArray> Xjk;
+typedef IloArray<Xjk> Xijk;
+typedef IloArray<Xijk> Xijkl; //xijkl[l][i][j][k]
+FILE *file;
+
+void input_Xijkl(Xijkl xijkl_m){
+	file = fopen("Proj3_processed.txt","r");
+        if(!file){
+                perror("Cannot Open File\n");
+                exit(-1);
+        }
+        fseek(file,0,SEEK_SET);
+
+
+    int i,j,k,l;	
+    while(fscanf(file,"%d %d %d %d\n",&l,&i,&j,&k)!= EOF){
+	xijkl_m[l][i][j][k] = 1;
+    }
+    fclose(file);
+}
+
+
+int  main (int argc, char *argv[])
 { 
      ifstream infile;
-     FILE *file;
+     
      infile.open("Proj3_op.txt");
      if(!infile){
 	cerr << "Unable to open the file\n";
@@ -19,13 +39,14 @@ int  main ()
      cout << "Before Everything!!!" << "\n";
      IloEnv env;
      IloInt   i,j,varCount1,varCount2,varCount3,conCount;                                                    //same as “int i;”
-     IloInt k,w,K,W,E,l,P,N;
+     IloInt k,w,K,W,E,l,P,N,L;
      IloInt tab, newline, val; //from file
      char line[2048];
      try {
 	N = 9;
 	K = 2;
-	W = 15;
+	L = 36;
+	W = (IloInt)atoi(argv[1]);
         IloModel model(env);		//set up a model object
 
 	IloNumVarArray var1(env);// = IloNumVarArray(env,K*W*N*N);
@@ -40,20 +61,30 @@ int  main ()
         //IloObjective obj;
 
 	//Define the Xijk matrix
-	Xijk xijk_matrix(env, N);
-	for(i=0;i<N;i++){
-		xijk_matrix[i] = Xij(env, N);
-		for(j=0;j<N;j++){
-			xijk_matrix[i][j] = IloNumArray(env, K);
-		}
-	}
+     	Xijkl xijkl_m(env, L);
+        for(l=0;l<L;l++){
+                xijkl_m[l] = Xijk(env, N);
+                for(i=0;i<N;i++){
+                        xijkl_m[l][i] = Xjk(env, N);
+                        for(j=0;j<N;j++){
+                                xijkl_m[l][i][j] = IloNumArray(env, K);
+                        }
+                }
+        }
 
+
+	
 	//reset everything to zero here
-	for(i=0;i<N;i++)
-		for(j=0;j<N;j++)
-			for(k=0;k<K;k++)
-				xijk_matrix[i][j][k] = 0;	
-	string linetmp;	
+	for(l=0;l<L;l++)
+                for(i=0;i<N;i++)
+                        for(j=0;j<N;j++)
+                                for(k=0;k<K;k++)
+                                        xijkl_m[l][i][j][k] = 0;
+
+	input_Xijkl(xijkl_m);
+
+
+/*	string linetmp;	
 	IloInt xi,xj,xk;
 	xi = xj = xk = 0;
 	int path_no = 0;
@@ -100,21 +131,9 @@ int  main ()
 		else	
 			path_no = 0;
 	}
-
-	cout<<"bahre\n";
+*/
 	
-	/*for(i=0;i<N;i++)	
-		e[i] = IloNumArray(env,N);
-
-	e[0][1] = e[0][2] = e[0][5] = e[0][6] = IloNum(1);
-	e[1][0] = e[1][2] = e[1][4] = e[1][7] = IloNum(1);
-	e[2][0] = e[2][1] = e[2][3] = e[2][8] = IloNum(1);
-	e[3][2] = e[3][5] = e[3][4] = e[3][8] = IloNum(1);
-	e[4][1] = e[4][3] = e[4][5] = e[4][7] = IloNum(1);
-	e[5][0] = e[5][3] = e[5][4] = e[5][6] = IloNum(1);
-	e[6][0] = e[6][5] = e[6][7] = e[6][8] = IloNum(1);
-	e[7][1] = e[7][6] = e[7][4] = e[7][8] = IloNum(1);
-	e[8][2] = e[8][4] = e[8][6] = e[8][7] = IloNum(1);*/
+	cout<<"bahre\n";
 	
 	for(i=0;i<N;i++){
 		t[i] = IloNumArray(env,N);
@@ -160,7 +179,7 @@ int  main ()
 	conCount = 0;
 	for(i=0;i<N;i++)
 		for(j=0;j<N;j++){
-			con.add(IloRange(env, 0, t[i][j]));
+			con.add(IloRange(env, t[i][j], t[i][j]));
 			//varCount1 = 0;
 			for(k=0;k<K;k++)
 				for(w=0;w<W;w++){
@@ -174,21 +193,21 @@ int  main ()
 	cout<<"1st\n";
 
 	IloInt z= 0;
-	for(w=0;w<W;w++){
-		con.add(IloRange(env, -IloInfinity, 1));
-		//varCount1 = 0;
-		for(i=0;i<N;i++)
-			for(j=0;j<N;j++)
-				for(k=0;k<K;k++){
-					//refer mixblend.cpp
-					//IloNumVarArray e(env, K);
-					//	e[k] = IloNumVar(env, var1[varCount1] * var2[varCount2], var1[varCount1] * var2[varCount2]);
-					con[conCount].setLinearCoef(var1[i*N*W*K+j*W*K+k*W+w],xijk_matrix[i][j][k]);
-//					varCount1++;
-					//IloInt temp = var1[varCount1++] * var2[varCount2++];
-				}
-		conCount++;
-	}
+        for(w=0;w<W;w++){
+                for(l=0;l<L;l++){
+                        con.add(IloRange(env, -IloInfinity, 1));
+                        for(i=0;i<N;i++){
+                                for(j=0;j<N;j++){
+                                        for(k=0;k<K;k++){
+                                                con[conCount].setLinearCoef(var1[i*N*W*K+j*W*K+k*W+w],xijkl_m[l][i][j][k]);
+                                        }
+                                }
+                        }
+                        conCount++;
+                }
+        }
+
+
 	cout<<"2nd\n";
 
 	//Adding Wavelength Constraints_1 to con
