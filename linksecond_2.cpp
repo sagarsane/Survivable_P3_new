@@ -95,7 +95,7 @@ int  main (int argc, char *argv[])
 			if(i == j)
 				t[i][j] = IloNum(0);
 			else if(i != j)
-				t[i][j] = IloNum(3);
+				t[i][j] = IloNum((i+j+2)%5);
 		}
 	}
 	

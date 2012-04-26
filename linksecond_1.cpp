@@ -84,54 +84,6 @@ int  main (int argc, char *argv[])
 	input_Xijkl(xijkl_m);
 
 
-/*	string linetmp;	
-	IloInt xi,xj,xk;
-	xi = xj = xk = 0;
-	int path_no = 0;
-	while(infile.getline(line, 2048)){
-		linetmp = line;
-		//cout << "Current line: " << linetmp << endl; 
-		if(linetmp.find("\n") == linetmp.length()-1){
-			//cout << "Line: " << linetmp << endl;
-			path_no = 0;
-			continue;
-		}
-		istringstream iss(linetmp);
-		string sub_a[3];//max
-		int s_cnt = 0;
-		do{
-			string sub;
-			getline(iss, sub, '\t');
-			//cout << "*" << sub;
-			if(!sub.empty()){
-				sub_a[s_cnt++] = sub;
-			}
-		}while(!iss.eof());
-		//process a line
-		cout << "Cnt:"  << s_cnt << endl;
-		int ii;
-		for(ii=0;ii<s_cnt;ii++){
-			  	if(ii+1 == s_cnt)
-                                        continue;
-
-				cout << "Path: " << path_no << "\t\t";
-				IloInt xi,xj;
-                                int ti,tj;
-                                istringstream(sub_a[ii]) >> ti;
-                                istringstream(sub_a[ii+1]) >> tj;
-				cout << ti << " " << tj << "\t";
-                                xi = (IloInt)ti-1;
-                                xj = (IloInt)tj-1;
-                                xijk_matrix[xi][xj][path_no] = 1;
-			
-		}
-		cout << "\n";
-		if(path_no == 0)
-			path_no = 1;
-		else	
-			path_no = 0;
-	}
-*/
 	
 	cout<<"bahre\n";
 	
@@ -157,23 +109,11 @@ int  main (int argc, char *argv[])
 			for(k=0;k<K;k++)
 				for(w=0;w<W;w++)
 					var1.add(IloNumVar(env, 0, 1, ILOINT));
-	//c_ijk_w variables set.
 
-	//Setting var2[] for Wavelength Constraints_1	
-	//E = 10;
-	/*for(i=0;i<9;i++)
-            	for(j=0;j<9;j++)
-        	       for(k=0;k<K;k++)
-               //                 for(w=0;w<E;w++)
-                             var2.add(IloNumVar(env, 0, 1, ILOINT));*/
 
 	for(w = 0;w < W;w++)
-		var3.add(IloNumVar(env, 0, W, ILOINT)); //Variables for u_w
+		var3.add(IloNumVar(env, 0, 1, ILOINT)); //Variables for u_w
 	cout<<"variables ready\n";
-	//IloRangeArray con1 = IloRangeArray(env, 1);
-        //con1.add(IloRange(env, 0, 3));
-       //con1[0].setLinearCoef(IloNumVar(env,0,1,ILOINT),1.0);
-        //cout << "Dumy Set\n";
 	conCount = 0;
 	for(i=0;i<N;i++)
 		for(j=0;j<N;j++){
@@ -225,10 +165,10 @@ int  main (int argc, char *argv[])
 	cout<<"3rd\n";
 	
 	varCount3 = 0;
-	con.add(IloRange(env, 0, IloInfinity));
-	con[conCount].setLinearCoef(W_max, 1.0);
-	for(w = 0;w < W ;w++){
- 		con[conCount].setLinearCoef(var3[w], -1.0 * w);
+	for(w=0;w<W;w++){
+		con.add(IloRange(env, 0, IloInfinity));
+		con[conCount].setLinearCoef(W_max, 1.0);
+ 		con[conCount++].setLinearCoef(var3[w], -1.0 * (w+1));
 	}
 	cout<<"after constraints\n";
 
@@ -242,14 +182,16 @@ int  main (int argc, char *argv[])
            env.error() << "Failed to optimize LP" << endl;
            throw(-1);
         }
-        IloNumVar vals(env);		//declare an array to store the outputs
-				 //if 2 dimensional: IloNumArray2 vals(env);
+        IloNumArray vals(env);		//declare an array to store the outputs
+	IloNumVarArray opvars(env);			 //if 2 dimensional: IloNumArray2 vals(env);
         env.out() << "Solution status = " << cplex.getStatus() << endl;
 		//return the status: Feasible/Optimal/Infeasible/Unbounded/Error/…
-        env.out() << "Solution value  = " << cplex.getObjValue() << endl; 
+        env.out() << "W_max value  = " << cplex.getObjValue() << endl; 
 		//return the optimal value for objective function
-        //cplex.getValues(vals, W_max);			//get the variable outputs
-        env.out() << "Values        = " << vals << endl;	//env.out() : output stream
+        cplex.getValues(vals, var1);			//get the variable outputs
+        env.out() << "Values Var1        = " <<  vals << endl;	//env.out() : output stream
+	cplex.getValues(vals, var3);
+	env.out() << "Values Val3        = " <<  vals << endl; 
 
      }
      catch (IloException& e) {
