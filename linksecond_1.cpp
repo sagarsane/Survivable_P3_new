@@ -1,6 +1,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <time.h>
 #include <ilcplex/ilocplex.h>
   ILOSTLBEGIN                                            //a macro that is needed for portability (necessary) 
 
@@ -29,7 +30,7 @@ void input_Xijkl(Xijkl xijkl_m){
 int  main (int argc, char *argv[])
 { 
      ifstream infile;
-     
+     clock_t start_time, end_time; 
      infile.open("Proj3_op.txt");
      if(!infile){
 	cerr << "Unable to open the file\n";
@@ -178,20 +179,24 @@ int  main (int argc, char *argv[])
 	model.add(con);			//add constraints into model
         IloCplex cplex(model);			//create a cplex object and extract the 					//model to this cplex object
         // Optimize the problem and obtain solution.
+	start_time = clock();
         if ( !cplex.solve() ) {
            env.error() << "Failed to optimize LP" << endl;
            throw(-1);
         }
+	end_time = clock();
         IloNumArray vals(env);		//declare an array to store the outputs
 	IloNumVarArray opvars(env);			 //if 2 dimensional: IloNumArray2 vals(env);
-        env.out() << "Solution status = " << cplex.getStatus() << endl;
+        //env.out() << "Solution status = " << cplex.getStatus() << endl;
 		//return the status: Feasible/Optimal/Infeasible/Unbounded/Error/…
         env.out() << "W_max value  = " << cplex.getObjValue() << endl; 
 		//return the optimal value for objective function
         cplex.getValues(vals, var1);			//get the variable outputs
-        env.out() << "Values Var1        = " <<  vals << endl;	//env.out() : output stream
+        //env.out() << "Values Var1        = " <<  vals << endl;	//env.out() : output stream
 	cplex.getValues(vals, var3);
-	env.out() << "Values Val3        = " <<  vals << endl; 
+	//env.out() << "Values Val3        = " <<  vals << endl; 
+	float diff(((float)end_time - (float)start_time)/CLOCKS_PER_SEC);
+	cout << "*******RUNNING TIME: " << diff << endl;
 
      }
      catch (IloException& e) {
