@@ -129,15 +129,28 @@ int  main (int argc, char *argv[])
 	conCount = 0;
 	for(i=0;i<N;i++)
 		for(j=0;j<N;j++){
-			con.add(IloRange(env, 2 * t[i][j], 2 * t[i][j]));
+			con.add(IloRange(env,  t[i][j],  t[i][j]));
 			//varCount1 = 0;
 			for(k=0;k<K;k++)
 				for(w=0;w<W;w++){
 					con[conCount].setLinearCoef(var1[i*N*W*K+j*W*K+k*W+w],1.0);
-					con[conCount].setLinearCoef(var2[i*N*W*K+j*W*K+k*W+w],1.0);
+					//con[conCount].setLinearCoef(var2[i*N*W*K+j*W*K+k*W+w],1.0);
 				}
 			conCount++;
 		}//Adding Demands Constraints to con
+
+      for(i=0;i<N;i++)
+               for(j=0;j<N;j++){
+                       con.add(IloRange(env, t[i][j], t[i][j]));
+                        //varCount1 = 0;
+                        for(k=0;k<K;k++)
+                                for(w=0;w<W;w++){
+                                        //con[conCount].setLinearCoef(var1[i*N*W*K+j*W*K+k*W+w],1.0);
+                                        con[conCount].setLinearCoef(var2[i*N*W*K+j*W*K+k*W+w],1.0);
+                                }
+                        conCount++;
+                }
+
 	cout<<"1st\n";
 
 	IloInt z= 0;
@@ -206,16 +219,20 @@ int  main (int argc, char *argv[])
            env.error() << "Failed to optimize LP" << endl;
            throw(-1);
         }
-        IloNumArray vals(env);		//declare an array to store the outputs
+        IloNumArray vals1(env);		//declare an array to store the outputs
 				 //if 2 dimensional: IloNumArray2 vals(env);
+	IloNumArray vals2(env);
         env.out() << "Solution status = " << cplex.getStatus() << endl;
 		//return the status: Feasible/Optimal/Infeasible/Unbounded/Error/…
         env.out() << "Solution value  = " << cplex.getObjValue() << endl; 
 		//return the optimal value for objective function
-	cplex.getValues(vals, var1);                    //get the variable outputs
-        env.out() << "Values Var1        = " <<  vals << endl;  //env.out() : output stream
-        cplex.getValues(vals, var3);
-        env.out() << "Values Val3        = " <<  vals << endl;
+	cplex.getValues(vals1, var1);                    //get the variable outputs
+        env.out() << "Values Var1        = " <<  vals1 << endl;  //env.out() : output stream
+	
+	cplex.getValues(vals2, var2);                    //get the variable outputs
+        env.out() << "Values Var2        = " <<  vals2 << endl;  //env.out() : output stream
+        cplex.getValues(vals1, var3);
+        env.out() << "Values Val3        = " <<  vals1 << endl;
 
      }
      catch (IloException& e) {

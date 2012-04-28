@@ -1,1 +1,12 @@
-Baryapaiki chaltey aata.. Constraint adding madhye con.setLineraCoef ya statement la exception yetiye.. kahi kalale nahi.. ani khup bore zale.. so me band kele...
+Working Code for both parts
+(9,7) and (21,18) are the answers.
+
+To DO :
+
+-Clean up all code and keep only files that are needed.
+-Add a line to increase CPU LImit time for Part 2 codes
+-Setup script for extra credit
+-For extra credit codes, output running time into a file.
+-Find Running time for main output.
+
+
