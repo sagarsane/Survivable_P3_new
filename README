@@ -4,7 +4,7 @@ Working Code for both parts
 To DO :
 
 -Clean up all code and keep only files that are needed.
--Add a line to increase CPU LImit time for Part 2 codes
+-Add a line to increase CPU LImit time for Part 2 codes (limit cputime 3600)
 -Setup script for extra credit
 -For extra credit codes, output running time into a file.
 -Find Running time for main output.
