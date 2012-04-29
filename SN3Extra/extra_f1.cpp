@@ -90,13 +90,9 @@ int  main (int argc, char *argv[])
 	for(i=0;i<N;i++){
 		t[i] = IloNumArray(env,N);
 		fscanf(file,"%d %d %d %d %d %d %d %d %d \n",&tj[0],&tj[1],&tj[2],&tj[3],&tj[4],&tj[5],&tj[6],&tj[7],&tj[8]);
-		//cout << tj[0] << " " << tj[1] << " " << tj[2] << endl;
 		
 		for(j=0;j<N;j++){
-			//if(i == j)
-			//	t[i][j] = IloNum(0);
-			//else if(i != j)
-				t[i][j] = IloNum(tj[j]);
+			t[i][j] = IloNum(tj[j]);
 		}
 	}
 	
