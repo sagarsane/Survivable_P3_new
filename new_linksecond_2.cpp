@@ -136,7 +136,7 @@ int  main (int argc, char *argv[])
 		for(j=0;j<N;j++){
 			con.add(IloRange(env,  tr[i][j],  tr[i][j]));
 			for(k=0;k<K;k++)
-				for(t=0;t<tr[i][j];t++){
+				for(t=0;t<T;t++){
 					for(w=0;w<W;w++){
 						con[conCount].setLinearCoef(var1[ i*N*W*K*T+ j*W*K*T+ k*W*T+ t*W + w],1.0);
 					}
@@ -150,7 +150,7 @@ int  main (int argc, char *argv[])
                 for(j=0;j<N;j++){
                         con.add(IloRange(env,  tr[i][j],  tr[i][j]));
                         for(k=0;k<K;k++)
-                                for(t=0;t<tr[i][j];t++){
+                                for(t=0;t<T;t++){
                                         for(w=0;w<W;w++){
                                                 con[conCount].setLinearCoef(var2[ i*N*W*K*T+ j*W*K*T+ k*W*T+ t*W + w],1.0);
                                         }
@@ -168,7 +168,7 @@ int  main (int argc, char *argv[])
                         for(i=0;i<N;i++){
                                 for(j=0;j<N;j++){
                                         for(k=0;k<K;k++){
-						for(t=0;t<tr[i][j];t++){
+						for(t=0;t<T;t++){
 	                                                con[conCount].setLinearCoef(var1[i*N*W*K*T+ j*W*K*T+ k*W*T+ t*W + w],xijkl_m[l][i][j][k]);
 							con[conCount].setLinearCoef(var2[i*N*W*K*T+ j*W*K*T+ k*W*T+ t*W + w],xijkl_m[l][i][j][k]);
 						}
@@ -190,7 +190,7 @@ int  main (int argc, char *argv[])
                 for(i=0;i<N;i++)
                        for(j=0;j<N;j++)
                                for(k=0;k<K;k++){
-					for(t=0;t<tr[i][j];t++){
+					for(t=0;t<T;t++){
 						con[conCount].setLinearCoef(var1[i*N*W*K*T+ j*W*K*T+ k*W*T+ t*W + w],1.0);
 						con[conCount].setLinearCoef(var2[i*N*W*K*T+ j*W*K*T+ k*W*T+ t*W + w],1.0);
 					}
@@ -205,7 +205,7 @@ int  main (int argc, char *argv[])
 	for(i=0;i<N;i++)
                for(j=0;j<N;j++)
                        for(k=0;k<K;k++)
-				for(t=0;t<tr[i][j];t++){
+				for(t=0;t<T;t++){
 				 	con.add(IloRange(env, -IloInfinity, 1));
 					for(w=0;w<W;w++){
 						con[conCount].setLinearCoef(var1[i*N*W*K*T+ j*W*K*T+ k*W*T+ t*W + w], 1.0);
